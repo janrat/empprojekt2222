@@ -6,12 +6,30 @@
     android:layout_height="match_parent"
     tools:context="si.fri.emp.vaje2.projektnaemp.MainActivity">
 
-    <Button
-        android:id="@+id/btnMatic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        tools:layout_editor_absoluteY="186dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnMatic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="List" />
+
+        <Button
+            android:id="@+id/btnInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Information"
+            tools:layout_editor_absoluteY="186dp" />
+
+        <Button
+            android:id="@+id/btnSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign in" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
