@@ -7,7 +7,7 @@
     tools:context="si.fri.emp.vaje2.projektnaemp.ListOfEventsActivity">
 
     <ListView
-        android:id="@+id/lvDogodki"
+        android:id="@+id/lvEvents"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
