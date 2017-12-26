@@ -1,0 +1,28 @@
+package si.fri.emp.vaje2.projektnaemp;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.ArrayAdapter;
+
+import java.util.ArrayList;
+
+public class ListOfEventsActivity extends AppCompatActivity {
+    ArrayList<String> eventList;
+    ArrayAdapter<String> eventAdapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_list_of_events);
+
+        eventList = new ArrayList<String>();
+        eventList.add("Event1");
+        eventList.add("Event2");
+        eventList.add("Event3");
+        eventList.add("Event4");
+
+        eventAdapter = new ArrayAdapter<String>(this, R.layout.events_list_item,eventList);
+
+        eventAdapter.notifyDataSetChanged();
+    }
+}
