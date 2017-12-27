@@ -1,7 +1,12 @@
 package si.fri.emp.vaje2.projektnaemp;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -78,6 +83,9 @@ public class InformationEventActivity extends AppCompatActivity {
                     String organiser = response.getString("organiser");
                     String city = response.getString("city");
                     String time = response.getString("timeStarts");
+                    String url = response.getString("tickets");
+                    String text = "<a href=\""+ url +"\">Kupi vstopnico</a>";
+
                     /*DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
                     Date date = (Date)formatter.parse(time);*/
 
@@ -86,7 +94,7 @@ public class InformationEventActivity extends AppCompatActivity {
                     tvDescription.setText(description);
                     tvDescription.append("\nOrganizator: " + organiser);
                     if(price.equals("0")) {
-                        tvPrice.setText("Ni vstopnine");
+                        tvPrice.setText("Vstop brezplačen");
                     }
                     else {
                         tvPrice.setText(price + "€");
@@ -95,7 +103,13 @@ public class InformationEventActivity extends AppCompatActivity {
                     tvPlace.append(", " + city);
                     tvTags.setVisibility(View.INVISIBLE);
                     //tvTags.setText(response.getString("tags"));
-                    tvUrl.setText(response.getString("tickets"));
+                    if (Build.VERSION.SDK_INT >= 24) {
+                        tvUrl.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
+                    } else {
+                        tvUrl.setText(Html.fromHtml(text));
+                    }
+                    tvUrl.setMovementMethod(LinkMovementMethod.getInstance());
+
                     tvTime.setText(time);
 
                 } catch (JSONException e) {
