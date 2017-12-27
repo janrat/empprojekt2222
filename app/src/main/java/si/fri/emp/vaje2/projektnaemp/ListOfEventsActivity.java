@@ -1,11 +1,16 @@
 package si.fri.emp.vaje2.projektnaemp;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -36,18 +41,19 @@ public class ListOfEventsActivity extends AppCompatActivity {
         lvEvents = (ListView)findViewById(R.id.lvEvents);
         requestQueue = Volley.newRequestQueue(getApplicationContext());
 
-        /*eventList = new ArrayList<String>();
-        eventList.add("Event1");
-        eventList.add("Event2");
-        eventList.add("Event3");
-        eventList.add("Event4");
-
-        eventAdapter = new ArrayAdapter<String>(ListOfEventsActivity.this.getApplicationContext(), android.R.layout.simple_list_item_1,eventList);
-
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
-        lvEvents.setAdapter(eventAdapter);*/
-
         getEvents();
+
+        lvEvents.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                LinearLayout ll = (LinearLayout)view;
+                TextView tvEventID = (TextView) ll.findViewById(R.id.eventID);
+                String eventID = tvEventID.getText().toString();
+                Intent intent = new Intent(ListOfEventsActivity.this, InformationEventActivity.class);
+                intent.putExtra("eventID",eventID);
+                startActivity(intent);
+            }
+        });
     }
 
     public void getEvents () {
@@ -63,12 +69,12 @@ public class ListOfEventsActivity extends AppCompatActivity {
             for (int i = 0; i<response.length(); i++) {
                 try {
                     JSONObject object = response.getJSONObject(i);
-                    String id = object.getString("eventID");
+                    String eventID = object.getString("eventID");
                     String name = object.getString("name");
                     String description = object.getString("description");
                     String price = object.getString("price");
                     HashMap<String, String> map = new HashMap<>();
-                    map.put("id", id);
+                    map.put("eventID", eventID);
                     map.put("name", name);
                     map.put("description", description);
                     map.put("price", price);
@@ -79,8 +85,8 @@ public class ListOfEventsActivity extends AppCompatActivity {
                 }
             }
             SimpleAdapter adapter = new SimpleAdapter(getApplicationContext(), data, R.layout.events_list_item,
-                    new String[]{"name","description","price"},
-                    new int[]{R.id.eventName,R.id.eventDescription,R.id.eventPrice});
+                    new String[]{"name","description","price","eventID"},
+                    new int[]{R.id.eventName,R.id.eventDescription,R.id.eventPrice,R.id.eventID});
             lvEvents.setAdapter(adapter);
         }
     };
