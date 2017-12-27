@@ -62,5 +62,11 @@
             android:layout_height="wrap_content"
             android:text="Tags" />
 
+        <TextView
+            android:id="@+id/tvUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Url" />
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
