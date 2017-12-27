@@ -71,9 +71,13 @@ public class ListOfEventsActivity extends AppCompatActivity {
                     JSONObject object = response.getJSONObject(i);
                     String eventID = object.getString("eventID");
                     String name = object.getString("name");
+                    String city = object.getString("city");
+                    String timeStarts = object.getString("timeStarts");
                     HashMap<String, String> map = new HashMap<>();
                     map.put("eventID", eventID);
                     map.put("name", name);
+                    map.put("city", city);
+                    map.put("timeStarts", timeStarts);
                     data.add(map);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -81,8 +85,8 @@ public class ListOfEventsActivity extends AppCompatActivity {
                 }
             }
             SimpleAdapter adapter = new SimpleAdapter(getApplicationContext(), data, R.layout.events_list_item,
-                    new String[]{"name","eventID"},
-                    new int[]{R.id.eventName,R.id.eventID});
+                    new String[]{"name","eventID","city","timeStarts"},
+                    new int[]{R.id.eventName,R.id.eventID,R.id.eventCity,R.id.eventTime});
             lvEvents.setAdapter(adapter);
         }
     };
