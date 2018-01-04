@@ -1,6 +1,8 @@
 package si.fri.emp.vaje2.projektnaemp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
@@ -42,6 +44,8 @@ public class InformationEventActivity extends AppCompatActivity {
 
     TextView tvEventName,tvDescription,tvPrice,tvTime,tvPlace,tvTags, tvUrl;
     ImageView ivPicture, ivLike, ivGoing;
+    String personID;
+    String liked, going;
     private ArrayAdapter<String> eventAdapter;
     private RequestQueue requestQueue;
     private String id;
@@ -63,39 +67,9 @@ public class InformationEventActivity extends AppCompatActivity {
         ivLike =  findViewById(R.id.ivLike);
         ivGoing =  findViewById(R.id.ivGoing);
 
-        ivLike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ivLike.getDrawable().getConstantState() == getResources().getDrawable(R.drawable.ic_like_hollow).getConstantState()) {
-                    ivLike.setImageResource(R.drawable.ic_like_fill);
-                    Snackbar.make(v, "Event liked", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-                else {
-                    ivLike.setImageResource(R.drawable.ic_like_hollow);
-                    Snackbar.make(v, "Event disliked", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-            }
-        });
-
-        ivGoing.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ivGoing.getMaxHeight() == 2625){
-                    ivGoing.setMaxHeight(2624);
-                    ivGoing.setColorFilter(getResources().getColor(R.color.green));
-                    Snackbar.make(v, "Event signup", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-                else {
-                    ivGoing.setMaxHeight(2625);
-                    ivGoing.setColorFilter(getResources().getColor(R.color.black));
-                    Snackbar.make(v, "Event signoff", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-            }
-        });
+        SharedPreferences prfs = getSharedPreferences("ACCOUNT_INFO", Context.MODE_PRIVATE);
+        personID = prfs.getString("Authentication_Id", "");
+        String name =  prfs.getString("Authentication_Name", "");
 
         Bundle bundle = getIntent().getExtras();
         if(bundle.getString("eventID")!= null)
@@ -105,11 +79,63 @@ public class InformationEventActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(getApplicationContext());
 
+
+
+        ivLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(liked.equals("0")) {
+                    ivLike.setImageResource(R.drawable.ic_like_fill);
+                    Snackbar.make(v, "Event liked", Snackbar.LENGTH_SHORT)
+                            .setAction("Action", null).show();
+                    String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Liked/" + personID + "/" + id + "/1";
+                    JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);
+                    requestQueue.add(request);
+                    liked = "1";
+                }
+                else {
+                    ivLike.setImageResource(R.drawable.ic_like_hollow);
+                    Snackbar.make(v, "Event disliked", Snackbar.LENGTH_SHORT)
+                            .setAction("Action", null).show();
+                    String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Liked/" + personID + "/" + id + "/0";
+                    JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);
+                    requestQueue.add(request);
+                    liked = "0";
+                }
+            }
+        });
+
+        ivGoing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(going.equals("0")){
+                    ivGoing.setMaxHeight(2624);
+                    ivGoing.setColorFilter(getResources().getColor(R.color.green));
+                    Snackbar.make(v, "Event signup", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Going/" + personID + "/" + id + "/1";
+                    JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);
+                    requestQueue.add(request);
+                    going = "1";
+                }
+                else {
+                    ivGoing.setMaxHeight(2625);
+                    ivGoing.setColorFilter(getResources().getColor(R.color.black));
+                    Snackbar.make(v, "Event signoff", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Going/" + personID + "/" + id + "/0";
+                    JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);
+                    requestQueue.add(request);
+                    going = "0";
+                }
+            }
+        });
+
         getEventInfo();
     }
 
     public void getEventInfo () {
-        String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Event/" + id;
+        String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Event/" + personID + "/" + id;
         JsonObjectRequest request = new JsonObjectRequest(url, null, jsonObjectListener, errorListener);
         requestQueue.add(request);
     }
@@ -125,6 +151,14 @@ public class InformationEventActivity extends AppCompatActivity {
                     String city = response.getString("city");
                     String time = response.getString("timeStarts");
                     String url = response.getString("tickets");
+                    liked = response.getString("liked");
+                    going = response.getString("going");
+                    if(liked.equals("1")) {
+                        ivLike.setImageResource(R.drawable.ic_like_fill);
+                    }
+                    if(going.equals("1")) {
+                        ivGoing.setColorFilter(getResources().getColor(R.color.green));
+                    }
                     String text = "<a href=\""+ url +"\">Kupi vstopnico</a>";
 
                     /*DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
