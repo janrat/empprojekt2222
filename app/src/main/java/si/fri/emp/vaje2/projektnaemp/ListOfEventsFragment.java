@@ -2,9 +2,11 @@ package si.fri.emp.vaje2.projektnaemp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
@@ -40,13 +43,15 @@ import java.util.List;
  * Use the {@link ListOfEventsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
 
     private SwipeRefreshLayout swipeRefreshLayout;
+    private SearchView simpleSearchView;
+    private List<String> eventList, cityList;
+    private ArrayAdapter<String> eventAdapter, cityAdapter;
+    String mesto = "2";
 
-    private List<String> eventList;
-    private ArrayAdapter<String> eventAdapter;
-    private ListView lvEvents;
+    private ListView lvEvents, lvSearch;
 
     private RequestQueue requestQueue;
 
@@ -98,9 +103,27 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         // Inflate the layout for this fragment
         View RootView = inflater.inflate(R.layout.fragment_list_of_events, container, false);
 
+
+
+        String[] Cities = new String[]{"Ljubljana", "Velenje", "Maribor",
+                "Kranj", "Žalec", "Celje", "Koper", "Nova Gorica",
+                "Domžale","Slovenj Gradec"};
+
         lvEvents = (ListView) RootView.findViewById(R.id.lvEvents);
+        lvSearch = (ListView) RootView.findViewById(R.id.lvSearch);
+        lvSearch.setVisibility(View.INVISIBLE);
         requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
-        getEvents();
+        getEvents(mesto);
+
+        /*for (int i = 0; i < Cities.length; i++) {
+            cityList.add(Cities[i]);
+        }*/
+
+        // Pass results to ListViewAdapter Class
+        //cityAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),R.layout.events_list_item, R.id.eventName,cityList);
+
+        // Binds the Adapter to the ListView
+        //lvSearch.setAdapter(cityAdapter);
 
         lvEvents.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -117,12 +140,30 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         swipeRefreshLayout = (SwipeRefreshLayout) RootView.findViewById(R.id.swiperefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
 
+        simpleSearchView = (SearchView) RootView.findViewById(R.id.search); // inititate a search view
+        simpleSearchView.setIconifiedByDefault(false);
+        simpleSearchView.setQueryHint("Ljubljana");
+        simpleSearchView.setOnQueryTextListener(this);
+        CharSequence query = simpleSearchView.getQuery(); // get the query string currently in the text field
+        // perform set on query text focus change listener event
+        simpleSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+                    //lvSearch.setVisibility(View.VISIBLE);
+                }
+                else {
+                    lvSearch.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
         return RootView;
     }
 
 
-    public void getEvents () {
-        String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Events";
+    public void getEvents (String mesto) {
+        String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Events/" + mesto;
         JsonArrayRequest request = new JsonArrayRequest(url, jsonArrayListener, errorListener);
         requestQueue.add(request);
     }
@@ -189,8 +230,31 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
 
     @Override
     public void onRefresh() {
-        getEvents();
+        getEvents(mesto);
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String s) {
+        if(s.equals("Velenje")) {
+            mesto = "3";
+            Snackbar.make(this.getView(), "Dogodek odvšečkan.", Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show();
+        }
+        else if(s.equals("Celje")) {
+            mesto = "2";
+        }
+        else if(s.equals("Ljubljana")) {
+            mesto = "1";
+        }
+        getEvents(mesto);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String s) {
+        String text = s;
+        return false;
     }
 
     /**
