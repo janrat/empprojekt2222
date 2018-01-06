@@ -18,20 +18,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:hint="@string/hintEmail"/>
 
         <EditText
             android:id="@+id/etPass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:hint="@string/hintPassword"/>
 
         <Button
             android:id="@+id/btnSignIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign in" />
+            android:text="@string/textLoginButton" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

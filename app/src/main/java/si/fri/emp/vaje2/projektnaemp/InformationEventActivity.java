@@ -1,5 +1,8 @@
 package si.fri.emp.vaje2.projektnaemp;
 
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,7 +11,9 @@ import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
+import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
@@ -49,6 +54,7 @@ public class InformationEventActivity extends AppCompatActivity {
     private ArrayAdapter<String> eventAdapter;
     private RequestQueue requestQueue;
     private String id;
+    private String eventID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +92,7 @@ public class InformationEventActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(liked.equals("0")) {
                     ivLike.setImageResource(R.drawable.ic_like_fill);
-                    Snackbar.make(v, "Event liked", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(v, "Dogodek mi je všeč.", Snackbar.LENGTH_SHORT)
                             .setAction("Action", null).show();
                     String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Liked/" + personID + "/" + id + "/1";
                     JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);
@@ -95,7 +101,7 @@ public class InformationEventActivity extends AppCompatActivity {
                 }
                 else {
                     ivLike.setImageResource(R.drawable.ic_like_hollow);
-                    Snackbar.make(v, "Event disliked", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(v, "Dogodek odvšečkan.", Snackbar.LENGTH_SHORT)
                             .setAction("Action", null).show();
                     String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Liked/" + personID + "/" + id + "/0";
                     JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);
@@ -111,17 +117,18 @@ public class InformationEventActivity extends AppCompatActivity {
                 if(going.equals("0")){
                     ivGoing.setMaxHeight(2624);
                     ivGoing.setColorFilter(getResources().getColor(R.color.green));
-                    Snackbar.make(v, "Event signup", Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Grem na dogodek.", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Going/" + personID + "/" + id + "/1";
                     JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);
                     requestQueue.add(request);
                     going = "1";
+                    scheduleNotification(tvEventName.getText().toString(),tvTime.getText().toString(),Integer.parseInt(eventID));
                 }
                 else {
                     ivGoing.setMaxHeight(2625);
                     ivGoing.setColorFilter(getResources().getColor(R.color.black));
-                    Snackbar.make(v, "Event signoff", Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Ne grem na dogodek.", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Going/" + personID + "/" + id + "/0";
                     JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);
@@ -143,7 +150,7 @@ public class InformationEventActivity extends AppCompatActivity {
         @Override
         public void onResponse(JSONObject response) {
                 try {
-                    //String eventID = response.getString("eventID");
+                    eventID = response.getString("eventID");
                     String name = response.getString("name");
                     String description = response.getString("description");
                     String price = response.getString("price");
@@ -201,4 +208,31 @@ public class InformationEventActivity extends AppCompatActivity {
             Log.d("REST error", error.getMessage());
         }
     };
+
+    private void scheduleNotification(String notificationName, String notificationTime, int notificationID) {
+        Context context = getApplicationContext();
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+            .setContentTitle(notificationName)
+            .setContentText("Imate dogodek ob "+ notificationTime)
+            .setAutoCancel(true)
+            .setSmallIcon(R.drawable.ic_menu_share);
+
+        Intent intent = new Intent(context, InformationEventActivity.class);
+        PendingIntent activity = PendingIntent.getActivity(context, notificationID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        builder.setContentIntent(activity);
+
+        Notification notification = builder.build();
+
+        Intent notificationIntent = new Intent(context, NotificationPublisher.class);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, notificationID);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationID, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        long futureInMillis = SystemClock.elapsedRealtime() + 5;
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
+        Log.d("notification", "sem v scheduleNotification");
+    }
+
 }
