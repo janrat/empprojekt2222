@@ -28,8 +28,9 @@ import android.widget.Toast;
 import java.io.File;
 
 public class HomeActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ListOfEventsFragment.OnFragmentInteractionListener, ListOfMyEventsFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener, ListOfEventsFragment.OnFragmentInteractionListener, ListOfMyEventsFragment.OnFragmentInteractionListener, SettingsFragment.OnFragmentInteractionListener {
 
+    private NavigationView navigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +44,7 @@ public class HomeActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
 
         navigationView.setNavigationItemSelectedListener(this);
         ListOfEventsFragment listOfEventsFragment = new ListOfEventsFragment();
@@ -118,22 +119,27 @@ public class HomeActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_events) {
             // Handle the camera action
             ListOfEventsFragment listOfEventsFragment = new ListOfEventsFragment();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.FirstFragment, listOfEventsFragment, listOfEventsFragment.getTag()).commit();
             setTitle("Dogodki");
 
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_my_events) {
             ListOfMyEventsFragment listOfMyEventsFragment = new ListOfMyEventsFragment();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.FirstFragment, listOfMyEventsFragment, listOfMyEventsFragment.getTag()).commit();
             setTitle("Moji dogodki");
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_settings) {
+            SettingsFragment settingsFragment = new SettingsFragment();
+            navigationView.setCheckedItem(id);
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.FirstFragment, settingsFragment, settingsFragment.getTag()).commit();
+            setTitle("Nastavitve");
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_logout) {
             String dir = getFilesDir().getAbsolutePath();
             File f0 = new File(dir, "user.txt");
             boolean d0 = f0.delete();

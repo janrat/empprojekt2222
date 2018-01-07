@@ -5,11 +5,11 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/nav_events"
             android:icon="@drawable/ic_placeholder"
             android:title="Vsi dogodki" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_my_events"
             android:icon="@drawable/ic_favourites"
             android:title="Moji dogodki" />
     </group>
@@ -17,11 +17,11 @@
     <item android:title="Moj račun">
         <menu>
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_menu_manage"
                 android:title="Nastavitve" />
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_logout"
                 android:title="Odjavi me" />
         </menu>
