@@ -23,6 +23,13 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+
 public class MainActivity extends AppCompatActivity {
     EditText etUser, etPass;
     Button btn_SignIn;
@@ -33,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkIfLoggedIn(getApplicationContext());
 
         etUser = (EditText) findViewById(R.id.etUser);
         etPass = (EditText) findViewById(R.id.etPass);
@@ -90,13 +99,14 @@ public class MainActivity extends AppCompatActivity {
         else {
             focusView.requestFocus();
         }
-
     }
+
     public void Login(String user, String pass) {
         String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/login/" + user + "/" + pass;
         JsonObjectRequest request = new JsonObjectRequest(url, null, jsonObjectListener, errorListener);
         requestQueue.add(request);
     }
+
     private Response.Listener<JSONObject> jsonObjectListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
@@ -109,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
                 String surname = response.getString("surname");
                 String valid = response.getString("valid");
 
-
                 if(valid.equals("True")) {
                     Intent intent = new Intent(MainActivity.this,HomeActivity.class);
                     //intent.putExtra("personID",personID);
@@ -118,20 +127,22 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("Authentication_Id",personID);
                     editor.putString("Authentication_Name",name);
                     editor.putString("Authentication_Email",email);
+                    editor.putString("City_id",cityID);
+                    editor.putString("City_name",city);
                     editor.apply();
+
+                    writeUserToFile(personID+"\n"+name+"\n"+email+"\n"+city+"\n"+cityID,getApplicationContext());
+
                     startActivity(intent);
+                    finish();
                 }
                 else {
                     etUser.setError(getString(R.string.error_invalid_login));
                 }
-
-
             } catch (JSONException e) {
                 e.printStackTrace();
                 return;
             }
-
-
         }
     };
 
@@ -150,5 +161,52 @@ public class MainActivity extends AppCompatActivity {
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
+    }
+
+    private void writeUserToFile(String data,Context context) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("user.txt", Context.MODE_PRIVATE));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    private void checkIfLoggedIn(Context context) {
+        try {
+            InputStream inputStream = context.openFileInput("user.txt");
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                String personID = bufferedReader.readLine();
+                String name = bufferedReader.readLine();
+                String email = bufferedReader.readLine();
+                String city = bufferedReader.readLine();
+                String cityID = bufferedReader.readLine();
+
+                SharedPreferences.Editor editor = getSharedPreferences("ACCOUNT_INFO", MODE_PRIVATE).edit();
+                editor.putString("Authentication_Id",personID);
+                editor.putString("Authentication_Name",name);
+                editor.putString("Authentication_Email",email);
+                editor.putString("City_id",cityID);
+                editor.putString("City_name",city);
+                editor.apply();
+
+                inputStream.close();
+
+                Intent intent = new Intent(MainActivity.this,HomeActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        }
     }
 }
