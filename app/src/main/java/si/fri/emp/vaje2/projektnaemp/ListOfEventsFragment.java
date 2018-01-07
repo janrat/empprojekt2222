@@ -30,9 +30,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
+import java.text.CharacterIterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -49,7 +55,11 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
     private SearchView simpleSearchView;
     private List<String> eventList, cityList;
     private ArrayAdapter<String> eventAdapter, cityAdapter;
-    String mesto = "2";
+    String mesto;
+
+    String[] Cities = new String[]{"Ljubljana", "Velenje", "Celje",
+            "Kranj", "Žalec", "Maribor", "Koper", "Nova Gorica",
+            "Domžale","Slovenj Gradec"};
 
     private ListView lvEvents, lvSearch;
 
@@ -104,26 +114,12 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         View RootView = inflater.inflate(R.layout.fragment_list_of_events, container, false);
 
 
-
-        String[] Cities = new String[]{"Ljubljana", "Velenje", "Maribor",
-                "Kranj", "Žalec", "Celje", "Koper", "Nova Gorica",
-                "Domžale","Slovenj Gradec"};
-
         lvEvents = (ListView) RootView.findViewById(R.id.lvEvents);
         lvSearch = (ListView) RootView.findViewById(R.id.lvSearch);
         lvSearch.setVisibility(View.INVISIBLE);
         requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
-        getEvents(mesto);
 
-        /*for (int i = 0; i < Cities.length; i++) {
-            cityList.add(Cities[i]);
-        }*/
-
-        // Pass results to ListViewAdapter Class
-        //cityAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),R.layout.events_list_item, R.id.eventName,cityList);
-
-        // Binds the Adapter to the ListView
-        //lvSearch.setAdapter(cityAdapter);
+        getEvents();
 
         lvEvents.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -141,8 +137,8 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(this);
 
         simpleSearchView = (SearchView) RootView.findViewById(R.id.search); // inititate a search view
-        simpleSearchView.setIconifiedByDefault(false);
-        simpleSearchView.setQueryHint("Ljubljana");
+        //simpleSearchView.setIconifiedByDefault(false);
+        simpleSearchView.setQueryHint("Išči po mestu");
         simpleSearchView.setOnQueryTextListener(this);
         CharSequence query = simpleSearchView.getQuery(); // get the query string currently in the text field
         // perform set on query text focus change listener event
@@ -150,10 +146,14 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus) {
-                    //lvSearch.setVisibility(View.VISIBLE);
+                    lvSearch.bringToFront();
+                    lvSearch.setVisibility(View.VISIBLE);
+                    lvEvents.setVisibility(View.INVISIBLE);
                 }
                 else {
+                    lvEvents.bringToFront();
                     lvSearch.setVisibility(View.INVISIBLE);
+                    lvEvents.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -162,7 +162,9 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
     }
 
 
-    public void getEvents (String mesto) {
+    public void getEvents () {
+        SharedPreferences prfs = this.getActivity().getSharedPreferences("ACCOUNT_INFO", MODE_PRIVATE);
+        mesto = prfs.getString("City_id", "");
         String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Events/" + mesto;
         JsonArrayRequest request = new JsonArrayRequest(url, jsonArrayListener, errorListener);
         requestQueue.add(request);
@@ -230,30 +232,75 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
 
     @Override
     public void onRefresh() {
-        getEvents(mesto);
+        getEvents();
         swipeRefreshLayout.setRefreshing(false);
     }
+    public void TextFilter(ArrayList citiesList) {
+        ArrayList<HashMap<String, String>> data = new ArrayList<>();
+        ArrayList<String> cities = citiesList;
+        for (int i = 0; i < cities.size(); i++) {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("city", cities.get(i));
+            map.put("cityID", Integer.toString(i+2));
+            data.add(map);
+        }
 
+        SimpleAdapter adapter = new SimpleAdapter(this.getActivity(), data, R.layout.search_list_item,
+                new String[]{"city","cityID"},
+                new int[]{R.id.cityName, R.id.cityID});
+        lvSearch.setAdapter(adapter);
+
+        lvSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d("notification", "sem bil kliknjen");
+                LinearLayout ll = (LinearLayout)view;
+                TextView tvEventID = (TextView) ll.findViewById(R.id.cityID);
+                TextView tvCityName = (TextView) ll.findViewById(R.id.cityName);
+                SharedPreferences.Editor editor = getActivity().getSharedPreferences("ACCOUNT_INFO", MODE_PRIVATE).edit();
+                editor.putString("City_id", tvEventID.getText().toString());
+                editor.apply();
+                getEvents();
+                simpleSearchView.setQuery(tvCityName.getText().toString(), true);
+                lvEvents.bringToFront();
+                lvSearch.setVisibility(View.INVISIBLE);
+                lvEvents.setVisibility(View.VISIBLE);
+            }
+        });
+    }
     @Override
     public boolean onQueryTextSubmit(String s) {
+        SharedPreferences.Editor editor = this.getActivity().getSharedPreferences("ACCOUNT_INFO", MODE_PRIVATE).edit();
+
         if(s.equals("Velenje")) {
-            mesto = "3";
-            Snackbar.make(this.getView(), "Dogodek odvšečkan.", Snackbar.LENGTH_SHORT)
-                    .setAction("Action", null).show();
+            editor.putString("City_id","3");
         }
         else if(s.equals("Celje")) {
-            mesto = "2";
+            editor.putString("City_id","4");
         }
         else if(s.equals("Ljubljana")) {
-            mesto = "1";
+            editor.putString("City_id","2");
         }
-        getEvents(mesto);
-        return true;
+        editor.apply();
+        getEvents();
+        return false;
     }
 
     @Override
     public boolean onQueryTextChange(String s) {
-        String text = s;
+        String text = s.toLowerCase(Locale.getDefault());
+        ArrayList<String> citiesList = new ArrayList<>();
+        citiesList.clear();
+        if (s.length() == 0) {
+            citiesList.addAll(Arrays.asList(Cities));
+        } else {
+            for (String city : Cities) {
+                if (city.toLowerCase(Locale.getDefault()).contains(text)) {
+                    citiesList.add(city);
+                }
+            }
+        }
+        TextFilter(citiesList);
         return false;
     }
 
