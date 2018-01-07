@@ -3,6 +3,7 @@ package si.fri.emp.vaje2.projektnaemp;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -55,7 +57,8 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
     private SearchView simpleSearchView;
     private List<String> eventList, cityList;
     private ArrayAdapter<String> eventAdapter, cityAdapter;
-    String mesto;
+    private ImageView imageView;
+    private String mesto;
 
     String[] Cities = new String[]{"Ljubljana", "Velenje", "Celje",
             "Kranj", "Žalec", "Maribor", "Koper", "Nova Gorica",
@@ -113,6 +116,8 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         // Inflate the layout for this fragment
         View RootView = inflater.inflate(R.layout.fragment_list_of_events, container, false);
 
+        // imageView = (ImageView) RootView.findViewById(R.id.imageView);
+        // imageView.setImageResource(R.drawable.party);
 
         lvEvents = (ListView) RootView.findViewById(R.id.lvEvents);
         lvSearch = (ListView) RootView.findViewById(R.id.lvSearch);
@@ -137,7 +142,6 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(this);
 
         simpleSearchView = (SearchView) RootView.findViewById(R.id.search); // inititate a search view
-        //simpleSearchView.setIconifiedByDefault(false);
         simpleSearchView.setQueryHint("Išči po mestu");
         simpleSearchView.setOnQueryTextListener(this);
         CharSequence query = simpleSearchView.getQuery(); // get the query string currently in the text field
@@ -157,6 +161,14 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
                 }
             }
         });
+        simpleSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                lvSearch.bringToFront();
+                lvSearch.setVisibility(View.VISIBLE);
+                lvEvents.setVisibility(View.INVISIBLE);
+            }
+        });
 
         return RootView;
     }
@@ -174,7 +186,7 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         @Override
         public void onResponse(JSONArray response) {
             ArrayList<HashMap<String, String>> data = new ArrayList<>();
-            for (int i = 0; i<response.length(); i++) {
+            for (int i = response.length() - 1; i>=0; i--) {
                 try {
                     JSONObject object = response.getJSONObject(i);
                     String eventID = object.getString("eventID");
@@ -253,7 +265,6 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         lvSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.d("notification", "sem bil kliknjen");
                 LinearLayout ll = (LinearLayout)view;
                 TextView tvEventID = (TextView) ll.findViewById(R.id.cityID);
                 TextView tvCityName = (TextView) ll.findViewById(R.id.cityName);
@@ -283,6 +294,9 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         }
         editor.apply();
         getEvents();
+        lvSearch.setVisibility(View.INVISIBLE);
+        lvEvents.setVisibility(View.VISIBLE);
+        simpleSearchView.clearFocus();
         return false;
     }
 

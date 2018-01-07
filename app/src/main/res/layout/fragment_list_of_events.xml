@@ -7,9 +7,15 @@
     <SearchView
         android:id="@+id/search"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content" >
 
     </SearchView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="47dp"
+        android:background="@android:color/darker_gray"/>
 
     <ListView
         android:id="@+id/lvSearch"
@@ -21,7 +27,7 @@
         android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp">
+        android:layout_marginTop="50dp" >
 
         <ListView
             android:id="@+id/lvEvents"
