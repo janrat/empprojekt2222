@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -83,6 +90,7 @@ public class SettingsFragment extends Fragment {
 
         View RootView = inflater.inflate(R.layout.fragment_settings, container, false);
 
+        requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
         etLocation = (EditText) RootView.findViewById(R.id.etLocation);
         btnSaveSettings = (Button) RootView.findViewById(R.id.btnSaveSettings);
 
@@ -107,9 +115,9 @@ public class SettingsFragment extends Fragment {
                 String mesto = prfs.getString("City_id", "");
                 String personID = prfs.getString("Authentication_Id", "");
 
-               /* String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Settings/" + personID + "/" + mesto;
-                JsonArrayRequest request = new JsonArrayRequest(url, null, null);
-                requestQueue.add(request);*/
+                String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Settings/" + personID + "/" + mesto;
+                JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);
+                requestQueue.add(request);
 
                 Snackbar.make(view, "Nastavitve shranjene", Snackbar.LENGTH_SHORT)
                         .setAction("Action", null).show();
@@ -120,6 +128,18 @@ public class SettingsFragment extends Fragment {
         return RootView;
     }
 
+    private Response.Listener<JSONArray> jsonArrayListener = new Response.Listener<JSONArray>() {
+        @Override
+        public void onResponse(JSONArray response) {
+
+        }
+    };
+    private Response.ErrorListener errorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.d("REST error", error.getMessage());
+        }
+    };
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
