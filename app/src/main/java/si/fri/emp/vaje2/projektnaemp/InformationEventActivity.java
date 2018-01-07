@@ -116,7 +116,6 @@ public class InformationEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(going.equals("0")){
-                    ivGoing.setMaxHeight(2624);
                     ivGoing.setColorFilter(getResources().getColor(R.color.green));
                     Snackbar.make(v, "Grem na dogodek.", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -127,7 +126,6 @@ public class InformationEventActivity extends AppCompatActivity {
                     scheduleNotification(tvEventName.getText().toString(),tvTime.getText().toString(),Integer.parseInt(eventID));
                 }
                 else {
-                    ivGoing.setMaxHeight(2625);
                     ivGoing.setColorFilter(getResources().getColor(R.color.black));
                     Snackbar.make(v, "Ne grem na dogodek.", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
