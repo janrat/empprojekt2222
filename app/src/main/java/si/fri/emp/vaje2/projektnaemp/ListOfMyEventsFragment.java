@@ -128,7 +128,7 @@ public class ListOfMyEventsFragment extends Fragment implements SwipeRefreshLayo
 
 
     public void getEvents () {
-        String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Events/" + personID ;
+        String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Going/" + personID;
         JsonArrayRequest request = new JsonArrayRequest(url, jsonArrayListener, errorListener);
         requestQueue.add(request);
     }
