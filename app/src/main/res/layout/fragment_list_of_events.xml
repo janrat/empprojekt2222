@@ -35,10 +35,13 @@
             android:layout_height="match_parent"
             android:divider="@android:color/transparent"
             android:dividerHeight="20dp"
-            android:paddingBottom="20dp"
-            android:paddingTop="20dp">
+            android:paddingTop="10dp">
 
         </ListView>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
