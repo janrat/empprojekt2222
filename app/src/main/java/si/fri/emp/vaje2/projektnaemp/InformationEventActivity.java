@@ -42,6 +42,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -210,11 +211,20 @@ public class InformationEventActivity extends AppCompatActivity {
     };
 
     private void scheduleNotification(String notificationName, String notificationTime, int notificationID) {
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        long diffInMs = 0;
+        try {
+            Date eventStartTime = format.parse(notificationTime);
+            Date currentTime = Calendar.getInstance().getTime();
+            diffInMs = eventStartTime.getTime() - currentTime.getTime() - 3600000;
+        } catch (Exception e) {
+            return;
+        }
         Context context = getApplicationContext();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
             .setContentTitle(notificationName)
-            .setContentText("Imate dogodek ob "+ notificationTime)
+            .setContentText("Imate dogodek ob "+ notificationTime.split(" ")[1])
             .setAutoCancel(true)
             .setSmallIcon(R.drawable.ic_menu_share);
 
@@ -229,7 +239,7 @@ public class InformationEventActivity extends AppCompatActivity {
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationID, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        long futureInMillis = SystemClock.elapsedRealtime() + 5;
+        long futureInMillis = SystemClock.elapsedRealtime() + diffInMs;
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
         Log.d("notification", "sem v scheduleNotification");
