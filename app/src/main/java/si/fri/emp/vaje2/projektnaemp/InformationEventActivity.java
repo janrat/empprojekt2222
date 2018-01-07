@@ -211,20 +211,20 @@ public class InformationEventActivity extends AppCompatActivity {
     };
 
     private void scheduleNotification(String notificationName, String notificationTime, int notificationID) {
-        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy, HH:mm");
         long diffInMs = 0;
         try {
             Date eventStartTime = format.parse(notificationTime);
             Date currentTime = Calendar.getInstance().getTime();
-            diffInMs = eventStartTime.getTime() - currentTime.getTime() - 3600000;
+            diffInMs = eventStartTime.getTime() - currentTime.getTime();
         } catch (Exception e) {
-            return;
+            e.printStackTrace();
         }
         Context context = getApplicationContext();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
             .setContentTitle(notificationName)
-            .setContentText("Imate dogodek ob "+ notificationTime.split(" ")[1])
+            .setContentText("Imate dogodek ob "+ notificationTime)
             .setAutoCancel(true)
             .setSmallIcon(R.drawable.ic_menu_share);
 
