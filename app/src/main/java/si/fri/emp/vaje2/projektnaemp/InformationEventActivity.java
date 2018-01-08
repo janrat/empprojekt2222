@@ -93,7 +93,7 @@ public class InformationEventActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(liked.equals("0")) {
                     ivLike.setImageResource(R.drawable.ic_like_fill);
-                    Snackbar.make(v, "Dogodek mi je všeč.", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(v, "Dogodek všečkan.", Snackbar.LENGTH_SHORT)
                             .setAction("Action", null).show();
                     String url = "http://dogodkiserverapi.azurewebsites.net/Osebe.svc/Liked/" + personID + "/" + id + "/1";
                     JsonObjectRequest request = new JsonObjectRequest(url, null, null, null);

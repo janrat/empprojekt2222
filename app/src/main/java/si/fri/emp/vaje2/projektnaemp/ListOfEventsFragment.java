@@ -150,6 +150,7 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus) {
+                    simpleSearchView.setQuery("", false);
                     lvSearch.bringToFront();
                     lvSearch.setVisibility(View.VISIBLE);
                     lvEvents.setVisibility(View.INVISIBLE);
@@ -164,6 +165,7 @@ public class ListOfEventsFragment extends Fragment implements SwipeRefreshLayout
         simpleSearchView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                simpleSearchView.setQuery("", false);
                 lvSearch.bringToFront();
                 lvSearch.setVisibility(View.VISIBLE);
                 lvEvents.setVisibility(View.INVISIBLE);

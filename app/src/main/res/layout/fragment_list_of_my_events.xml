@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorAccent"
     tools:context="si.fri.emp.vaje2.projektnaemp.ListOfMyEventsFragment">
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -15,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@android:color/transparent"
+            android:paddingTop="20dp"
             android:dividerHeight="20dp"/>
 
         <Space
