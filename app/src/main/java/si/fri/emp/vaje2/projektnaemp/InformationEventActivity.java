@@ -214,7 +214,7 @@ public class InformationEventActivity extends AppCompatActivity {
         try {
             Date eventStartTime = format.parse(notificationTime);
             Date currentTime = Calendar.getInstance().getTime();
-            diffInMs = eventStartTime.getTime() - currentTime.getTime();
+            diffInMs = eventStartTime.getTime() - currentTime.getTime() - 1000*60*60;
         } catch (Exception e) {
             e.printStackTrace();
         }
